@@ -3,7 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class MovementConfig
 {
-    public bool autoJump = false;
+    public bool autoBunnyhop = false;
     public float gravity = 20.0f;
     public float jumpForce = 6.5f;
 
@@ -26,4 +26,5 @@ public class MovementConfig
     public float crouchAcceleration = 8.0f;
     public float crouchDeceleration = 4.0f;
     public float crouchFriction = 3.0f;
+
 }
