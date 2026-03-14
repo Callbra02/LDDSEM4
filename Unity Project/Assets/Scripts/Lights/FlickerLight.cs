@@ -15,6 +15,8 @@ public class FlickerLight : MonoBehaviour
     [SerializeField]  private float flickerTimerMax = 0.2f;
 
     private float defaultIntensity;
+    
+    // Get light and default intensity
     void Start()
     {
         _light = GetComponent<Light>();
@@ -23,29 +25,28 @@ public class FlickerLight : MonoBehaviour
     
     void Update()
     {
+        // Get random float 
         float randomFloat = Random.Range(0.0f, 100.0f);
 
+        // Skip everyother frame cause why not :D
         if (Time.time % 2 == 0)
         {
             return;
         }
 
+        // If float random float is within our random chance, flicker
         if (randomFloat < flickerChance && _canFlicker)
         {
-            Flicker();
+            _isFlickering = true;
         }
 
         HandleFlicker();
 
     }
 
-    void Flicker()
-    {
-        _isFlickering = true;
-    }
-
     void HandleFlicker()
     {
+        // Flicker once in between our flicker time max, e.g. length of flicker time
         if (_isFlickering)
         {
             _canFlicker = false;

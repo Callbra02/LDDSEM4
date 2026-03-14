@@ -9,10 +9,6 @@ public class InteractSystem : MonoBehaviour
     public Transform cameraTransform;
     public float maxInteractDistance = 2.0f;
 
-    private void Start()
-    {
-    }
-
     private void FixedUpdate()
     {
         HandleItemDetection();
@@ -20,7 +16,6 @@ public class InteractSystem : MonoBehaviour
     
     private void Update()
     {
-        
         HandleInteraction();
     }
 
@@ -28,8 +23,10 @@ public class InteractSystem : MonoBehaviour
     {
         RaycastHit hit;
 
+        // Sphere cast ahead of the center point of the camera + a given offset
         if (Physics.SphereCast(cameraTransform.position + raycastOffset, 0.5f, cameraTransform.forward, out hit, maxInteractDistance))
         {
+            // Set current interactable to any interactable that we are currently in range of interacting with
             hit.transform.gameObject.TryGetComponent<IInteractable>(out var interactable);
             _currentInteractable = interactable;
         }
@@ -39,10 +36,12 @@ public class InteractSystem : MonoBehaviour
         }
         
 
+        // Button press for interact
         UIManager.Instance.showButtonToggle = _currentInteractable != null;
 
     }
 
+    // If we interact this frame and theres an interactable, call it's Interact() func
     private void HandleInteraction()
     {
         if (interactAction.action.WasPressedThisFrame() && _currentInteractable != null)

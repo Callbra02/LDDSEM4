@@ -29,6 +29,7 @@ public class PlayerAim : MonoBehaviour
 
     private void Update()
     {
+        // Break logic if game is paused
         if (Mathf.Abs(Time.timeScale) <= 0)
         {
             return;

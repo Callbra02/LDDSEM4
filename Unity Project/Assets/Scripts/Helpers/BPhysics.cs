@@ -5,12 +5,12 @@ public class BPhysics
 
     public static int groundLayerMask = LayerMask.GetMask(new string[] { "Default", "Ground", "Player clip" });
 
-    private static Collider[] _colliders = new Collider[maxCollisions];
-    private static Vector3[] _planes = new Vector3[maxClipPlanes];
+    private static Collider[] _colliders = new Collider[_maxCollisions];
+    private static Vector3[] _planes = new Vector3[_maxClipPlanes];
     public const float HU2M = 52.4934383202f;
-    private const int maxCollisions = 128;
-    private const int maxClipPlanes = 5;
-    private const int numBumps = 1;
+    private const int _maxCollisions = 128;
+    private const int _maxClipPlanes = 5;
+    private const int _numBumps = 1;
     
     public const float SurfSlope = 0.7f;
 
@@ -26,7 +26,6 @@ public class BPhysics
 
             numOverlaps = Physics.OverlapBoxNonAlloc(origin, collider.bounds.extents, _colliders,
                 Quaternion.identity, groundLayerMask, QueryTriggerInteraction.Ignore);
-
         }
         
         Vector3 forwardVelocity = Vector3.Scale (velocity, new Vector3 (1f, 0f, 1f));
@@ -145,29 +144,29 @@ public class BPhysics
 
     public static void Friction (ref Vector3 velocity, float stopSpeed, float friction, float deltaTime) {
 
-     var speed = velocity.magnitude;
+        var speed = velocity.magnitude;
 
-     if (speed < 0.0001905f)
+        if (speed < 0.0001905f)
          return;
 
-     var drop = 0f;
+        var drop = 0f;
 
-     // apply ground friction
-     var control = (speed < stopSpeed) ? stopSpeed : speed;
-     drop += control * friction * deltaTime;
+        // apply ground friction
+        var control = (speed < stopSpeed) ? stopSpeed : speed;
+        drop += control * friction * deltaTime;
 
-     // scale the velocity
-     var newspeed = speed - drop;
-     if (newspeed < 0)
+        // scale the velocity
+        var newspeed = speed - drop;
+        if (newspeed < 0)
          newspeed = 0;
 
-     if (newspeed != speed) {
+        if (newspeed != speed) {
 
          newspeed /= speed;
          velocity *= newspeed;
 
-     }
-
+        }
+        
     }
 
     public static Vector3 AirAccelerate(Vector3 velocity, Vector3 wishDir, float wishSpeed, float accel, float airCap,
@@ -243,7 +242,7 @@ public class BPhysics
         var allFraction = 0f;
         var timeLeft = deltaTime;   // Total time for this movement operation.
 
-        for (int bumpcount = 0; bumpcount < numBumps; bumpcount++) {
+        for (int bumpcount = 0; bumpcount < _numBumps; bumpcount++) {
 
             if (velocity.magnitude == 0f)
                 break;
@@ -283,7 +282,7 @@ public class BPhysics
             timeLeft -= timeLeft * trace.fraction;
 
             // Did we run out of planes to clip against?
-            if (numplanes >= maxClipPlanes) {
+            if (numplanes >= _maxClipPlanes) {
 
                 // this shouldn't really happen
                 //  Stop our movement if so.
@@ -311,8 +310,6 @@ public class BPhysics
 
                         // floor or slope
                         return blocked;
-                        //ClipVelocity(originalVelocity, _planes[i], ref newVelocity, 1f);
-                        //originalVelocity = newVelocity;
 
                     } else
                         ClipVelocity (originalVelocity, _planes [i], ref newVelocity, 1f);
@@ -343,9 +340,7 @@ public class BPhysics
 
                     if (j == numplanes)  // Didn't have to clip, so we're ok
                         break;
-
                 }
-
                 // Did we go all the way through plane set
                 if (i != numplanes) {   // go along this plane
                     // pmove.velocity is set in clipping call, no need to set again.
@@ -365,10 +360,8 @@ public class BPhysics
 
                 }
 
-                //
                 // if original velocity is against the original velocity, stop dead
                 // to avoid tiny occilations in sloping corners
-                //
                 d = Vector3.Dot (velocity, primalVelocity);
                 if (d <= 0f) {
 
@@ -384,23 +377,6 @@ public class BPhysics
 
         if (allFraction == 0f)
             velocity = Vector3.zero;
-
-        // Check if they slammed into a wall
-        //float fSlamVol = 0.0f;
-
-        //var primal2dLen = new Vector2(primal_velocity.x, primal_velocity.z).magnitude;
-        //var vel2dLen = new Vector2(_moveData.Velocity.x, _moveData.Velocity.z).magnitude;
-        //float fLateralStoppingAmount = primal2dLen - vel2dLen;
-        //if (fLateralStoppingAmount > PLAYER_MAX_SAFE_FALL_SPEED * 2.0f)
-        //{
-        //    fSlamVol = 1.0f;
-        //}
-        //else if (fLateralStoppingAmount > PLAYER_MAX_SAFE_FALL_SPEED)
-        //{
-        //    fSlamVol = 0.85f;
-        //}
-
-        //PlayerRoughLandingEffects(fSlamVol);
 
         return blocked;
     }
