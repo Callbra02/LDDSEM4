@@ -6,17 +6,21 @@ public class InteractSystem : MonoBehaviour
     public InputActionReference interactAction;
     public Vector3 raycastOffset = Vector3.zero;
     private IInteractable _currentInteractable;
-    private Transform _cameraTransform;
+    public Transform cameraTransform;
     public float maxInteractDistance = 2.0f;
 
     private void Start()
     {
-        _cameraTransform = this.transform.GetChild(0).transform.GetChild(0);
+    }
+
+    private void FixedUpdate()
+    {
+        HandleItemDetection();
     }
     
     private void Update()
     {
-        HandleItemDetection();
+        
         HandleInteraction();
     }
 
@@ -24,12 +28,16 @@ public class InteractSystem : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.SphereCast(_cameraTransform.position + raycastOffset, 0.5f, _cameraTransform.forward, out hit, maxInteractDistance))
+        if (Physics.SphereCast(cameraTransform.position + raycastOffset, 0.5f, cameraTransform.forward, out hit, maxInteractDistance))
         {
-            _currentInteractable = hit.transform.gameObject.TryGetComponent<IInteractable>(out var interactable)
-                ? interactable
-                : null;
+            hit.transform.gameObject.TryGetComponent<IInteractable>(out var interactable);
+            _currentInteractable = interactable;
         }
+        else
+        {
+            _currentInteractable = null;
+        }
+        
 
         UIManager.Instance.showButtonToggle = _currentInteractable != null;
 
