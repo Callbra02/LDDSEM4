@@ -29,8 +29,8 @@ public class bCharacter : MonoBehaviour, IBController
     [Header("Crouch")]
     public float crouchingHeightMultiplier = 0.5f;
     public float crouchingSpeed = 10.0f;
-    private float defaultHeight;
-    private bool allowCrouch = true;
+    private float _defaultHeight;
+    private bool _allowCrouch = true;
 
     [Header("Features")]
     public bool enableCrouching = true;
@@ -50,10 +50,10 @@ public class bCharacter : MonoBehaviour, IBController
     private MoveData _moveData = new MoveData();
     private BController _controller = new BController();
 
-    private Rigidbody rb;
+    private Rigidbody _rb;
     
-    private List<Collider> triggers = new List<Collider>();
-    private int numberOfTriggers = 0;
+    private List<Collider> _triggers = new List<Collider>();
+    private int _numberOfTriggers = 0;
     
     // Properties
     public MoveType moveType { get { return MoveType.Walk; } }
@@ -72,15 +72,15 @@ public class bCharacter : MonoBehaviour, IBController
     public Vector3 right { get { return viewTransform.right; } }
     public Vector3 up { get { return viewTransform.up; } }
 
-    private Vector3 previousPosition;
+    private Vector3 _previousPosition;
 
     public InputActionReference moveAction;
     public InputActionReference sprintAction;
     public InputActionReference crouchAction;
     public InputActionReference jumpAction;
-    private bool isJumping = false;
-    private bool isCrouching = false;
-    private bool isSprinting = false;
+    private bool _isJumping = false;
+    public bool isCrouching = false;
+    private bool _isSprinting = false;
     
     private void OnDrawGizmos()
     {
@@ -101,14 +101,14 @@ public class bCharacter : MonoBehaviour, IBController
 
     private void Start()
     {
-        sprintAction.action.started += ctx => isSprinting = true;
-        sprintAction.action.canceled += ctx => isSprinting = false;
+        sprintAction.action.started += ctx => _isSprinting = true;
+        sprintAction.action.canceled += ctx => _isSprinting = false;
 
         crouchAction.action.started += ctx => isCrouching = true;
         crouchAction.action.canceled += ctx => isCrouching = false;
         
-        jumpAction.action.started += ctx => isJumping = true;
-        jumpAction.action.canceled += ctx => isJumping = false;
+        jumpAction.action.started += ctx => _isJumping = true;
+        jumpAction.action.canceled += ctx => _isJumping = false;
         
         _colliderObject = new GameObject("PlayerCollider");
         _colliderObject.layer = gameObject.layer;
@@ -117,7 +117,7 @@ public class bCharacter : MonoBehaviour, IBController
         _colliderObject.transform.localPosition = Vector3.zero;
         _colliderObject.transform.SetSiblingIndex(0);
 
-        previousPosition = transform.position;
+        _previousPosition = transform.position;
 
         if (viewTransform == null)
         {
@@ -136,20 +136,20 @@ public class bCharacter : MonoBehaviour, IBController
             GameObject.Destroy(_collider);
         }
         
-        rb = gameObject.GetComponent<Rigidbody>();
+        _rb = gameObject.GetComponent<Rigidbody>();
 
-        if (rb == null)
+        if (_rb == null)
         {
-            rb = gameObject.AddComponent<Rigidbody>();
+            _rb = gameObject.AddComponent<Rigidbody>();
         }
         
-        allowCrouch = enableCrouching;
+        _allowCrouch = enableCrouching;
 
-        rb.isKinematic = true;
-        rb.useGravity = false;
-        rb.angularDamping = 0.0f;
-        rb.linearDamping = 0.0f;
-        rb.mass = weight;
+        _rb.isKinematic = true;
+        _rb.useGravity = false;
+        _rb.angularDamping = 0.0f;
+        _rb.linearDamping = 0.0f;
+        _rb.mass = weight;
 
         switch (collisionType)
         {
@@ -157,7 +157,7 @@ public class bCharacter : MonoBehaviour, IBController
                 _collider = _colliderObject.AddComponent<BoxCollider>();
                 var boxc = (BoxCollider)_collider;
                 boxc.size = colliderSize;
-                defaultHeight = boxc.size.y;
+                _defaultHeight = boxc.size.y;
                 break;
             
             case ColliderType.Capsule:
@@ -171,7 +171,7 @@ public class bCharacter : MonoBehaviour, IBController
         _moveData.viewTransform = viewTransform;
         _moveData.viewTransformDefaultLocalPosition = viewTransform.localPosition;
         
-        _moveData.defaultHeight = defaultHeight;
+        _moveData.defaultHeight = _defaultHeight;
         _moveData.crouchingHeight = crouchingHeightMultiplier;
         _moveData.crouchingSpeed = crouchingSpeed;
 
@@ -186,29 +186,29 @@ public class bCharacter : MonoBehaviour, IBController
 
         UpdateMoveData();
 
-        Vector3 positionalMovement = transform.position - previousPosition;
-        transform.position = previousPosition;
+        Vector3 positionalMovement = transform.position - _previousPosition;
+        transform.position = _previousPosition;
         moveData.origin += positionalMovement;
 
-        if (numberOfTriggers != triggers.Count)
+        if (_numberOfTriggers != _triggers.Count)
         {
-            numberOfTriggers = triggers.Count;
+            _numberOfTriggers = _triggers.Count;
             
-            triggers.RemoveAll(item => item == null);
-            foreach (Collider trigger in triggers)
+            _triggers.RemoveAll(item => item == null);
+            foreach (Collider trigger in _triggers)
             {
                 if (trigger == null)
                     continue;
             }
         }
 
-        if (allowCrouch)
+        if (_allowCrouch)
         {
             _controller.Crouch(this, movementConfig, Time.deltaTime);
         }
         _controller.ProcessMovement(this, movementConfig, Time.deltaTime);
         transform.position = moveData.origin;
-        previousPosition = transform.position;
+        _previousPosition = transform.position;
         _colliderObject.transform.rotation = Quaternion.identity;
     }
 
@@ -217,14 +217,14 @@ public class bCharacter : MonoBehaviour, IBController
         _moveData.verticalAxis = moveAction.action.ReadValue<Vector2>().y;
         _moveData.horizontalAxis = moveAction.action.ReadValue<Vector2>().x;
 
-        _moveData.sprinting = isSprinting;
+        _moveData.sprinting = _isSprinting;
         _moveData.crouching = isCrouching;
         
         bool moveLeft = _moveData.horizontalAxis < 0;
         bool moveRight = _moveData.horizontalAxis > 0;
         bool moveForward = _moveData.verticalAxis > 0;
         bool moveBackwards = _moveData.verticalAxis < 0;
-        bool jump = isJumping;
+        bool jump = _isJumping;
 
         if (!moveLeft && !moveRight)
             _moveData.sideMove = 0.0f;
@@ -240,7 +240,7 @@ public class bCharacter : MonoBehaviour, IBController
         else if (moveBackwards)
             _moveData.forwardMove = -moveConfig.acceleration;
 
-        _moveData.wishJump = isJumping;
+        _moveData.wishJump = _isJumping;
 
         _moveData.viewAngles = _angles;
     }

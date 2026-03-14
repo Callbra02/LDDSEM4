@@ -3,8 +3,7 @@ using UnityEngine.InputSystem;
 
 public class ItemBob : MonoBehaviour
 {
-    [SerializeField] private InputActionReference lookAction;
-    [SerializeField] private InputActionReference crouchAction;
+    public InputActionReference lookAction;
     [SerializeField] private float resetRecoverTime = 0.25f;
     [SerializeField] private float bobScale = 0.1f;
     [SerializeField] private float bobSpeed = 3.0f;
@@ -13,12 +12,6 @@ public class ItemBob : MonoBehaviour
     private bool _isCrouching = false;
     private Vector3 _restPosition;
     private float _currentSpeed;
-
-    void Awake()
-    {
-        crouchAction.action.started += ctx => _isCrouching = true;
-        crouchAction.action.canceled += ctx => _isCrouching = false;
-    }
     
     void Start()
     {
@@ -31,6 +24,7 @@ public class ItemBob : MonoBehaviour
     void Update()
     {
         _currentSpeed = _isCrouching ? bobCrouchSpeed : bobSpeed;
+        _isCrouching = GameManager.Instance.playerCharacter.isCrouching;
         
         if (lookAction.action.ReadValue<Vector2>().magnitude > Mathf.Epsilon)
         {
