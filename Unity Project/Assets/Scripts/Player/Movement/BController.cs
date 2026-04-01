@@ -145,35 +145,35 @@ public class BController
 
     private void Accelerate(Vector3 wishDir, float wishSpeed, float acceleration, bool yMovement)
     {
-        float _addSpeed;
-        float _accelerationSpeed;
-        float _currentSpeed;
+        float addSpeed;
+        float accelerationSpeed;
+        float currentSpeed;
 
-        _currentSpeed = Vector3.Dot(_bController.moveData.velocity, wishDir);
-        _addSpeed = wishSpeed - _currentSpeed;
+        currentSpeed = Vector3.Dot(_bController.moveData.velocity, wishDir);
+        addSpeed = wishSpeed - currentSpeed;
 
-        if (_addSpeed <= 0)
+        if (addSpeed <= 0)
             return;
 
-        _accelerationSpeed = Mathf.Min(acceleration * _deltaTime * wishSpeed, _addSpeed);
+        accelerationSpeed = Mathf.Min(acceleration * _deltaTime * wishSpeed, addSpeed);
 
-        _bController.moveData.velocity.x += _accelerationSpeed * wishDir.x;
+        _bController.moveData.velocity.x += accelerationSpeed * wishDir.x;
         if (yMovement)
         {
-            _bController.moveData.velocity.y += _accelerationSpeed * wishDir.y;
+            _bController.moveData.velocity.y += accelerationSpeed * wishDir.y;
         }
 
-        _bController.moveData.velocity.z += _accelerationSpeed * wishDir.z;
+        _bController.moveData.velocity.z += accelerationSpeed * wishDir.z;
     }
 
     private void ApplyFriction(float t, bool yAffected, bool grounded)
     {
-        Vector3 _vel = _bController.moveData.velocity;
-        float _speed, _newSpeed, _control, _drop;
+        Vector3 vel = _bController.moveData.velocity;
+        float speed, newSpeed, control, drop;
 
-        _vel.y = 0.0f;
-        _speed = _vel.magnitude;
-        _drop = 0.0f;
+        vel.y = 0.0f;
+        speed = vel.magnitude;
+        drop = 0.0f;
 
         float fric = crouching ? _config.crouchFriction : _config.friction;
         float accel = crouching ? _config.crouchAcceleration : _config.acceleration;
@@ -181,22 +181,22 @@ public class BController
 
         if (grounded)
         {
-            _vel.y = _bController.moveData.velocity.y;
-            _control = _speed < decel ? decel : _speed;
-            _drop = _control * fric * _deltaTime * t;
+            vel.y = _bController.moveData.velocity.y;
+            control = speed < decel ? decel : speed;
+            drop = control * fric * _deltaTime * t;
         }
 
-        _newSpeed = Mathf.Max(_speed - _drop, 0.0f);
-        if (_speed > 0.0f)
-            _newSpeed /= _speed;
+        newSpeed = Mathf.Max(speed - drop, 0.0f);
+        if (speed > 0.0f)
+            newSpeed /= speed;
 
-        _bController.moveData.velocity.x *= _newSpeed;
+        _bController.moveData.velocity.x *= newSpeed;
         if (yAffected == true)
         {
-            _bController.moveData.velocity.y *= _newSpeed;
+            _bController.moveData.velocity.y *= newSpeed;
         }
 
-        _bController.moveData.velocity.z *= _newSpeed;
+        _bController.moveData.velocity.z *= newSpeed;
     }
 
     private Vector3 AirInputMovement()
